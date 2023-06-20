@@ -52,7 +52,7 @@ def style_transfer(
 
     low_res = _prepare_pil_image(support_pil_img, 64)
     mid_res = _prepare_pil_image(support_pil_img, 256)
-    # high_res = _prepare_pil_image(support_pil_img, 1024)
+    high_res = _prepare_pil_image(support_pil_img, 1024)
 
     result = {}
     if if_I is not None:
@@ -85,6 +85,7 @@ def style_transfer(
         if stageI_generations is None:
             stageI_generations = low_res.repeat(bs, 1, 1, 1)
 
+        _, _, image_h, image_w = mid_res.shape
         if_II_kwargs = if_II_kwargs or {}
         if_II_kwargs['low_res'] = stageI_generations
         if_II_kwargs['seed'] = seed
@@ -113,6 +114,7 @@ def style_transfer(
 
         stageIII_generations = []
         for idx in range(len(stageII_generations)):
+            _, _, image_h, image_w = high_res.shape
             if if_III.use_diffusers:
                 if_III_kwargs['prompt'] = prompt[idx: idx+1] if prompt is not None else style_prompt[idx: idx+1]
 
