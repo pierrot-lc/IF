@@ -187,7 +187,7 @@ class IFBaseModule:
                 )
                 if inpainting_mask is not None:
                     inpainting_mask = torch.nn.functional.interpolate(
-                        inpainting_mask,
+                        inpainting_mask.float(),
                         size=(image_h, image_w),
                         mode="bilinear",
                         align_corners=True,
