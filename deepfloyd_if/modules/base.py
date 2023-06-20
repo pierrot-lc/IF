@@ -183,15 +183,17 @@ class IFBaseModule:
                     support_noise,
                     size=(image_h, image_w),
                     mode="bilinear",
-                    align_corners=False,
+                    align_corners=True,
                 )
                 if inpainting_mask is not None:
                     inpainting_mask = torch.nn.functional.interpolate(
                         inpainting_mask,
                         size=(image_h, image_w),
-                        mode="nearest-exact",
-                        align_corners=False,
+                        mode="bilinear",
+                        align_corners=True,
                     )
+                    inpainting_mask = inpainting_mask > 0.5  # Back to bool.
+                    inpainting_mask = inpainting_mask.float()  # Back to 0/1.
 
             assert support_noise_less_qsample_steps < len(diffusion.timestep_map) - 1
             assert support_noise.shape == (1, 3, image_h, image_w)
