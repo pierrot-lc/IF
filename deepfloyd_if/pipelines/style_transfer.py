@@ -16,6 +16,7 @@ def style_transfer(
     *,
     support_pil_img,
     style_prompt,
+    inpainting_mask=None,
     prompt=None,
     negative_prompt=None,
     seed=None,
@@ -66,6 +67,11 @@ def style_transfer(
 
         if_I_kwargs['support_noise'] = low_res
 
+        if inpainting_mask is not None:
+            inpainting_mask_I = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
+            inpainting_mask_I = torch.from_numpy(inpainting_mask_I).unsqueeze(0).to(if_I.device)
+            if_I_kwargs['inpainting_mask'] = inpainting_mask_I
+
         stageI_generations, _ = if_I.embeddings_to_image(**if_I_kwargs)
         pil_images_I = if_I.to_images(stageI_generations, disable_watermark=disable_watermark)
 
@@ -87,6 +93,11 @@ def style_transfer(
         if_II_kwargs['progress'] = progress
 
         if_II_kwargs['support_noise'] = mid_res
+
+        if inpainting_mask is not None and 'inpainting_mask' not in if_II_kwargs:
+            inpainting_mask_II = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
+            inpainting_mask_II = torch.from_numpy(inpainting_mask_II).unsqueeze(0).to(if_II.device)
+            if_II_kwargs['inpainting_mask'] = inpainting_mask_II
 
         stageII_generations, _meta = if_II.embeddings_to_image(**if_II_kwargs)
         pil_images_II = if_II.to_images(stageII_generations, disable_watermark=disable_watermark)
@@ -115,6 +126,11 @@ def style_transfer(
                 positive_t5_embs = positive_t5_embs[idx:idx+1]
             if_III_kwargs['style_t5_embs'] = style_t5_embs
             if_III_kwargs['positive_t5_embs'] = positive_t5_embs
+
+            if inpainting_mask is not None and 'inpainting_mask' not in if_III_kwargs:
+                inpainting_mask_III = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
+                inpainting_mask_III = torch.from_numpy(inpainting_mask_III).unsqueeze(0).to(if_III.device)
+                if_III_kwargs['inpainting_mask'] = inpainting_mask_III
 
             _stageIII_generations, _meta = if_III.embeddings_to_image(**if_III_kwargs)
             stageIII_generations.append(_stageIII_generations)
