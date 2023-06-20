@@ -27,6 +27,8 @@ def style_transfer(
     return_tensors=False,
     disable_watermark=False,
 ):
+    from skimage.transform import resize  # noqa
+    from skimage import img_as_bool  # noqa
     assert isinstance(support_pil_img, PIL.Image.Image)
 
     bs = len(style_prompt)
