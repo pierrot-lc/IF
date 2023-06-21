@@ -25,6 +25,7 @@ def style_transfer(
     if_III_kwargs=None,
     progress=True,
     return_tensors=False,
+    disable_mask_after_stageI=False,
     disable_watermark=False,
 ):
     from skimage.transform import resize  # noqa
@@ -97,7 +98,7 @@ def style_transfer(
 
         if_II_kwargs['support_noise'] = mid_res
 
-        if inpainting_mask is not None and 'inpainting_mask' not in if_II_kwargs:
+        if inpainting_mask is not None and 'inpainting_mask' not in if_II_kwargs and not disable_mask_after_stageI:
             inpainting_mask_II = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
             inpainting_mask_II = torch.from_numpy(inpainting_mask_II).unsqueeze(0).to(if_II.device)
             if_II_kwargs['inpainting_mask'] = inpainting_mask_II
@@ -131,7 +132,7 @@ def style_transfer(
             if_III_kwargs['style_t5_embs'] = style_t5_embs
             if_III_kwargs['positive_t5_embs'] = positive_t5_embs
 
-            if inpainting_mask is not None and 'inpainting_mask' not in if_III_kwargs:
+            if inpainting_mask is not None and 'inpainting_mask' not in if_III_kwargs and not disable_mask_after_stageI:
                 inpainting_mask_III = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
                 inpainting_mask_III = torch.from_numpy(inpainting_mask_III).unsqueeze(0).to(if_III.device)
                 if_III_kwargs['inpainting_mask'] = inpainting_mask_III
