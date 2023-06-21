@@ -90,6 +90,7 @@ class IFBaseModule:
         support_noise=None,
         support_noise_less_qsample_steps=0,
         inpainting_mask=None,
+        remove_inpainting_mask_for_last_steps=0,
         **kwargs,
     ):
         self._clear_cache()
@@ -223,6 +224,7 @@ class IFBaseModule:
                     device=self.device,
                     progress=progress,
                     sample_fn=sample_fn,
+                    remove_inpainting_mask_for_last_steps=remove_inpainting_mask_for_last_steps,
                 )[:batch_size]
         elif sample_loop == 'ddim':
             with torch.no_grad():

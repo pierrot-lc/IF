@@ -415,6 +415,7 @@ class GaussianDiffusion:
         device=None,
         progress=False,
         sample_fn=None,
+        remove_inpainting_mask_for_last_steps=0,
     ):
         """
         Generate samples from the model.
@@ -445,6 +446,7 @@ class GaussianDiffusion:
             model_kwargs=model_kwargs,
             device=device,
             progress=progress,
+            remove_inpainting_mask_for_last_steps=remove_inpainting_mask_for_last_steps,
         )):
             if sample_fn is not None:
                 sample = sample_fn(step_idx, sample)
@@ -464,6 +466,7 @@ class GaussianDiffusion:
         model_kwargs=None,
         device=None,
         progress=False,
+        remove_inpainting_mask_for_last_steps=0,
     ):
         """
         Generate samples from the model and yield intermediate samples from
@@ -489,6 +492,9 @@ class GaussianDiffusion:
 
         for i in indices:
             t = torch.tensor([i] * shape[0], device=device)
+            if len(indices) - i >= remove_inpainting_mask_for_last_steps:
+                inpainting_mask = None
+
             with torch.no_grad():
                 out = self.p_sample(
                     model,
