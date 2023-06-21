@@ -492,7 +492,7 @@ class GaussianDiffusion:
 
         for i in indices:
             t = torch.tensor([i] * shape[0], device=device)
-            if len(indices) - i >= remove_inpainting_mask_for_last_steps:
+            if len(indices) - i <= remove_inpainting_mask_for_last_steps:
                 inpainting_mask = None
 
             with torch.no_grad():
