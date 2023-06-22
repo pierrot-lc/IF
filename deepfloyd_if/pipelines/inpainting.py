@@ -16,7 +16,6 @@ def inpainting(
     support_pil_img,
     prompt,
     inpainting_mask,
-    remove_inpainting_mask_for_last_steps=0,
     negative_prompt=None,
     seed=None,
     if_I_kwargs=None,
@@ -80,8 +79,6 @@ def inpainting(
         if_II_kwargs['progress'] = progress
 
         if_II_kwargs['support_noise'] = mid_res
-
-        if_II_kwargs['remove_inpainting_mask_for_last_steps'] = remove_inpainting_mask_for_last_steps
 
         if 'inpainting_mask' not in if_II_kwargs:
             inpainting_mask_II = img_as_bool(resize(inpainting_mask[0].cpu().numpy(), (3, image_h, image_w)))
