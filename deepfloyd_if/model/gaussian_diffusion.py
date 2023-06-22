@@ -490,9 +490,9 @@ class GaussianDiffusion:
 
             indices = tqdm(indices)
 
-        for i in indices:
+        for i in indices:  # Follows a specific schedule from 1000 to 1.
             t = torch.tensor([i] * shape[0], device=device)
-            if len(indices) - i <= remove_inpainting_mask_for_last_steps:
+            if i <= remove_inpainting_mask_for_last_steps:
                 inpainting_mask = None
 
             with torch.no_grad():
