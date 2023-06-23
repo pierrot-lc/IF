@@ -7,11 +7,12 @@ Docstrings have been added, as well as DDIM sampling and a new collection of bet
 
 import enum
 import math
+
 import numpy as np
 import torch
 
+from .losses import discretized_gaussian_log_likelihood, normal_kl
 from .nn import mean_flat
-from .losses import normal_kl, discretized_gaussian_log_likelihood
 
 
 def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
@@ -416,6 +417,7 @@ class GaussianDiffusion:
         progress=False,
         sample_fn=None,
         remove_inpainting_mask_for_last_steps=0,
+        save_gif_animation=True,
     ):
         """
         Generate samples from the model.
@@ -434,6 +436,9 @@ class GaussianDiffusion:
         :return: a non-differentiable batch of samples.
         """
         final = None
+        if save_gif_animation:
+            gif_images = [noise[:1].cpu() if noise is not None else torch.randn(shape)]
+
         for step_idx, sample in enumerate(self.p_sample_loop_progressive(
             model,
             shape,
@@ -450,7 +455,37 @@ class GaussianDiffusion:
         )):
             if sample_fn is not None:
                 sample = sample_fn(step_idx, sample)
+
+            if save_gif_animation:
+                gif_images.append(sample['sample'][:1])
+
             final = sample
+
+        if save_gif_animation:
+            from torchvision.transforms.functional import to_pil_image
+            from PIL import Image
+
+            gif_images = [
+                (img + 1) / 2 for img in gif_images
+            ]
+            gif_images = [
+                img.clamp(0, 1) for img in gif_images
+            ]
+            gif_images = [
+                to_pil_image(img) for img in gif_images
+            ]
+
+            gif_images[0].save(
+                'sample.gif',
+                save_all=True,
+                append_images=gif_images[1:],
+                duration=100,
+                loop=0,
+            )
+
+
+
+
         return final['sample']
 
     def p_sample_loop_progressive(
